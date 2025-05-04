@@ -1,0 +1,312 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+ // Structure des informations des voitures :
+
+ struct voiture {
+    char marque[20];
+    char matricule[30];
+    int kilometrage;
+    int dispo;
+ };
+
+ typedef struct voiture voiture;
+
+ // Structure des informations des clients :
+
+ struct client {
+    char nom[20];
+    char cin[20];
+    char tel[20];
+    char matr[30];
+    float avance;
+    float prix_a_payer;
+ };
+
+ typedef struct client client;
+
+ // Structure liste chainee 1 (voitures) :
+
+ typedef struct noeud noeud;
+
+ struct noeud {
+    voiture data; // Variable de type voiture qui contient les infos de la voiture
+    noeud *next, *prev;
+ };
+
+ // Structure liste chainee 2 (clients) :
+
+ typedef struct cellule cellule;
+
+ struct cellule {
+    client info; // Variable de type client qui contient les infos du client
+    cellule *suiv, *prec;
+ };
+
+ /** FONCTION AJOUT VOITURE : **/
+
+ void ajouter_voiture(noeud **head, voiture x){
+    noeud *p;
+    do { p = (noeud*)malloc(sizeof(noeud));
+    } while(p == NULL);
+    p->prev = NULL;
+    p->data.dispo = x.dispo;
+    strcpy(p->data.marque, x.marque);
+    strcpy(p->data.matricule, x.matricule);
+    p->data.kilometrage = x.kilometrage;
+    p->next = *head;
+    *head = p;
+ }
+
+ /** FONCTION TRI **/
+
+ void tri(noeud** head){
+    noeud *temp1 = *head, *temp2 = *head;
+    int c;
+    temp2 = temp2->next;
+    while(temp1 != NULL){
+        if(temp1->data.kilometrage < temp2->data.kilometrage){
+            c = temp1->data.kilometrage;
+            temp1->data.kilometrage = temp2->data.kilometrage;
+            temp2->data.kilometrage = c;
+        }
+        temp1 = temp1->next;
+        temp2 = temp2->next;
+    }
+ }
+
+ /** FONCTION AFFICHAGE VOITURE : **/
+
+ void affichage_voiture(noeud *head){
+    noeud *g = head; char nameX[30]; int found = 0;
+    printf("\n\n Saisir le nom de la voiture a afficher : ");
+    scanf("%s",nameX);
+    while(g != NULL){
+        if(strcmp(nameX, g->data.marque) == 0 && g->data.dispo == 1){
+            printf("\n\n Matricule : %s\n",g->data.matricule);
+            printf("\n Marque : %s\n",g->data.marque);
+            printf("\n Kilometrage : %d\n",g->data.kilometrage);
+            printf("\n Disponibilite : %d\n\n",g->data.dispo);
+            found++;
+        }
+        g = g->next;
+    }
+    if(found == 0)
+       printf("\n Auncune voiture trouvee");
+ }
+
+ /** FONCTION MODIFICATION VOITURE : **/
+
+ void modif_voiture(noeud **head, voiture data){
+    noeud *ptr = *head; char al[30];
+    getchar();
+    printf("\n Saisir le matricule de la voiture a modifier :  ");
+    gets(al);
+    while(ptr != NULL){
+        if(strcmp(al, ptr->data.matricule) == 0){
+            printf("\n Modifier le nom : ");
+            gets(ptr->data.marque);
+            printf("\n Modifier le matricule : ");
+            gets(ptr->data.matricule);
+            printf("\n Modifier le kilometrage : ");
+            scanf("%d",ptr->data.kilometrage);
+            printf("\n Si la voiture est indisponible :  ");
+            scanf("%d",ptr->data.dispo);
+        }
+        ptr = ptr->next;
+    }
+ }
+
+ /** FONCTION SUPPRESSION VOITURE : **/
+
+ void supp_voiture(noeud *head){
+    noeud *p1 = head; char carName[30];
+    getchar();
+    printf("\n Entrer le nom de la voiture a supprimer : ");
+    gets(carName);
+    while(p1->next != NULL){
+        if(strcmp(carName, p1->data.marque) == 0){
+            p1->prev->next = p1->next;
+            p1->next->prev = p1->prev;
+            free(p1);
+        }
+    }
+ }
+
+ /** FONCTION AJOUTER CLIENT : **/
+
+ void ajouter_client(cellule **cl, client c){
+    cellule *ptr1;
+    do { ptr1 = (cellule*)malloc(sizeof(cellule));
+    } while(ptr1 == NULL);
+    strcpy(ptr1->info.nom, c.nom);
+    strcpy(ptr1->info.cin, c.cin);
+    strcpy(ptr1->info.tel, c.tel);
+    strcpy(ptr1->info.matr, c.matr);
+    ptr1->info.avance = c.avance;
+    ptr1->info.prix_a_payer = c.prix_a_payer;
+    ptr1->prec = NULL;
+    ptr1->suiv = *cl;
+    *cl = ptr1;
+ }
+
+ /** FONCTION AFFICHAGE CLIENT : **/
+
+ void affich_client(cellule *head){
+    cellule *t = head; char cinn[20];
+    getchar();
+    printf("\n Saisir CIN du client a afficher : ");
+    scanf("%s",cinn);
+    while(t != NULL){
+        if(strcmp(cinn, t->info.cin) == 0){
+            printf("\n Nom : %s",t->info.nom);
+            printf("\n CIN : %s",t->info.cin);
+            printf("\n Telephone : %s",t->info.tel);
+            printf("\n Matricule : %s",t->info.matr);
+            printf("\n Avance : %.2f",t->info.avance);
+            printf("\n Prix a payer : %.2f",t->info.prix_a_payer);
+        }
+        t = t->suiv;
+    }
+ }
+
+ /** FONCTION MODIFICATION CLIENT : **/
+
+ void modif_client(cellule *head, client x){
+    cellule *ptr = head; char clientCIN[20];
+    getchar();
+    printf("\n Saisir le CIN du client a modifier :  ");
+    gets(clientCIN);
+    while(ptr->suiv != NULL){
+        if(strcmp(clientCIN, ptr->info.cin) == 0){
+            printf("\n Modifier le matricule de la voiture desiree : ");
+            gets(ptr->info.matr);
+            printf("\n Modifier l'avance : ");
+            scanf("%f",ptr->info.avance);
+            printf("\n Modifier le prix a payer : ");
+            scanf("%f",ptr->info.prix_a_payer);
+        }
+    }
+ }
+
+ /** FONCTION SUPPRESSION CLIENT : **/
+
+ void supp_client(cellule *head){
+      cellule *pc = head;
+      char clientcin[30];
+      getchar();
+      printf("\n Entrer le CIN du client a supprimer : ");
+      gets(clientcin);
+      while(pc->suiv != NULL){
+          if(strcmp(clientcin, pc->info.cin) == 0){
+              pc->prec->suiv = pc->suiv;
+              pc->suiv->prec = pc->prec;
+              free(pc);
+          }
+      }
+ }
+
+ void gestionClients(cellule *tete, client s){
+       affich_client(&tete);
+       printf("\n Si vous desirez modifier vos informations, cliquez sur A : ");
+       if(getch() == 65){
+          modif_client(&tete, s);
+       }
+       //supp_client(&tete);
+ }
+
+ void gestionVoitures(noeud *head, voiture v){
+      affichage_voiture(&head);
+      printf("\n Si vous voulez modifier une voiture, cliquez sur A : ");
+      if(getch() == 65){
+         modif_voiture(head,v);}
+      //supp_voiture(head);
+ }
+
+ /** FONCTION MENU : **/
+
+ int menu(int a, noeud **head, voiture x, cellule **n, client y){
+     printf("\n 1 - GESTION DES VOITURES");
+     printf("\n\n 2 - GESTION DES LOCATIONS");
+     printf("\n\n 3 - QUITTER");
+     printf("\n\n\t VOTRE CHOIX : ");
+     scanf("%d",&a);
+     if(a == 1){
+        noeud* tete1 = *head; int i = 1;
+        while(i == 1){
+           printf("\n Matricule : ");
+           scanf("%s",x.matricule);
+           printf("\n Marque : ");
+           scanf("%s",x.marque);
+           printf("\n Disponibilite : ");
+           scanf("%d",&x.dispo);
+           printf("\n Kilometrage : ");
+           scanf("%d",&x.kilometrage);
+           ajouter_voiture(tete1,x);
+           printf("\n Voulez-vous saisir une autre voiture : ");
+           printf("\n 1 -> Oui"); printf("\n 2 -> Non :  ");
+           scanf("%d",&i);
+        }
+        gestionVoitures(head,x);}
+     else if(a == 2){
+         cellule* tete2 = *n; int j = 1;
+         while(j == 1){
+            printf("\n Nom : ");
+            scanf("%s",y.nom);
+            printf("\n CIN : ");
+            scanf("%s",y.cin);
+            printf("\n Telephone : ");
+            scanf("%s",y.tel);
+            printf("\n Matricule : ");
+            scanf("%s",y.matr);
+            printf("\n Avance : ");
+            scanf("%f",&y.avance);
+            printf("\n Prix a payer : ");
+            scanf("%f",&y.prix_a_payer);
+            ajouter_client(n,y);
+            printf("\n Voulez-vous saisir un autre client : ");
+            printf("\n 1 -> Oui"); printf("\n 2 -> Non :  ");
+            scanf("%d",&j);
+         }
+         gestionClients(n,y);}
+     if(a == 3)
+         printf("Esc");
+ return a;
+ }
+
+ main(){
+
+   // int x; noeud *b; voiture c; cellule *a; client h;
+    //menu(x,&b,c,&a,h);
+
+    /*cellule *vs; client azer;
+    printf("\n Veuillez saisir votre nom : ");
+    scanf("%s",azer.nom);
+    printf("\n Veuillez saisir votre CIN : ");
+    scanf("%s",azer.cin);
+    printf("\n Veuillez saisir votre TEL : ");
+    scanf("%s",azer.tel);
+    printf("\n Veuillez saisir votre avance : ");
+    scanf("%f",azer.avance);
+    ajouter_client(vs,azer);
+    affich_client(vs,azer);*/
+
+    /*char a[20], b[10];
+    printf(" Saisir chaine 1 : ");
+    gets(a);
+    printf(" Saisir chaine 2 : ");
+    gets(b);
+    if(strcmp(a,b) == 0)
+        printf("\n hhhhh");*/
+
+ }
+
+
+
+
+
+
+
+
+
